@@ -5,9 +5,18 @@ import numpy as bruh
 translator = UniversalTranslator(n_dim=2)
 
 # demo of how to use the UniversalTranslator object. You can delete these lines
-sample_settings = [[0, 0.5], [0.1, 0.4], [0.67, 0.69]]
+sample_settings = [[1, 0.5], [1, 0.6], [1, 0.7]]
 
-#random settings 
+# Evaluates how well a string is translated
+def evaluate_score(string: str) -> int:
+    score = 0
+    tokens = string.split()
+    for word in tokens:
+        if not word.isnumeric():
+            score += 1
+    return score
+
+#random settings
 for index in sample_settings:
     translated_string = translator.translate(index)
     print(translated_string)
