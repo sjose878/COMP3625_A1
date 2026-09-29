@@ -20,8 +20,9 @@ def evaluate_score(string: str) -> int:
 # finds the slope of the translator function
 # @arg start_values is a np.array that represents the knob settings first tried
 # @arg nudge changes how much x2 differs from x1 (np.array)
-def derive(knob_setting, nudge):
-    string1 = translator.translate(knob_setting)
+def derive(knob, settings, index, nudge):
+    
+    string1 = translator.translate(knob)
     x1 = evaluate_score(string1)
     string2 = translator.translate(start_values + nudge)
     x2 = evaluate_score(string2)
@@ -30,10 +31,12 @@ def derive(knob_setting, nudge):
 
 def gradient_descent(settings, nudge, decode_rate: float, max_steps: int):
     for i in range(max_steps):
+        index = 0 # track which knob is currently being derived
         for knob in settings:
-            new_setting =  knob - (decode_rate * derive(knob, nudge))
+            new_setting =  knob - (decode_rate * derive(knob, settings, index, nudge))
             knob = new_setting
-            if (x_setting - knob) < 0.0005: # stop if close to maxima
+            index += 1
+            if (new_setting - knob) < 0.0005: # stop if close to maxima
                 break
     return
 
