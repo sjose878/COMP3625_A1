@@ -34,12 +34,12 @@ def gradient_descent(settings, nudge, decode_rate: float, max_steps: int):
     for i in range(max_steps):
         index = 0 # track which knob is currently being derived
         for knob in settings:
-            new_setting =  knob - (decode_rate * derive(settings, index, nudge))
+            new_setting =  knob + (decode_rate * derive(settings, index, nudge))
             knob = new_setting
             index += 1
             if (new_setting - knob) < 0.0005: # stop if close to maxima
                 break
-        print(f'# epoch: {i}')
+        print(f'# Score: {evaluate_score(translator.translate(settings))}')
     return settings
 
 
@@ -50,13 +50,13 @@ def gradient_descent(settings, nudge, decode_rate: float, max_steps: int):
     print("LINE BREAK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
 # MAIN
-start_values = np.array([0.0, 0.5])
+start_values = np.array([0.0, 0.0])
 decode_rate = 0.1
 nudge = 0.001
 max_steps = 1000
 result = gradient_descent(start_values, nudge, decode_rate, max_steps)
-string = translator.translate(result)
-final_score = evaluate_score(string)
+final_string = translator.translate(result)
+final_score = evaluate_score(final_string)
 print(f'# solution: {result} Score: {final_score}')
 
 # print total number of settings evaluated
