@@ -5,7 +5,7 @@ import numpy as bruh
 translator = UniversalTranslator(n_dim=2)
 
 # demo of how to use the UniversalTranslator object. You can delete these lines
-sample_settings = [[0, 0.3], [0, 0.6], [0, 0.9]]
+#sample_settings = [[0, 0.3], [0, 0.6], [0, 0.9]]
 
 # Evaluates how well a string is translated
 # Note: The string has 964 words. Can calculate %
@@ -19,17 +19,17 @@ def evaluate_score(string: str) -> int:
 
 # finds the slope of the translator function
 # @arg start_values is a np.array that represents the knob settings first tried
-# @arg nudge changes how much x2 differs from x1
-def calculate_slope(start_values, nudge):
+# @arg nudge changes how much x2 differs from x1 (np.array)
+def derive(start_values, nudge):
     string1 = translator.translate(start_values)
     x1 = evaluate_score(string1)
     string2 = translator.translate(start_values + nudge)
     x2 = evaluate_score(string2)
-    slope = (x2 - x1)/nudge # definiton of a derivative as a limit
-    return slope
+    derivative = (x2 - x1)/nudge # definiton of a derivative as a limit
+    return derivative
 
 def gradient_descent(alpha: float, max_steps: int):
-    derivative = derivative(old_slope) #slope or parameter?
+    derivative = derivative() #slope or parameter?
     for i in range(max_steps):
         new_slope = old_slope - alpha * derivative
         if (new_slope - old_slope) < 0.0005: # stop if close to maxima
