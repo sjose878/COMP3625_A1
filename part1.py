@@ -1,65 +1,71 @@
 from translator import UniversalTranslator
 import matplotlib.pyplot as plt
 import numpy as np
+
 # create the UniversalTranslatsor object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
+#implement random -> targeted strategy
 #sample_settings = [np.random.rand(2).tolist() for num in range(25)]
-sample_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
+original_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
 
 # Evaluates how well a string is translated
 # Note: The string has 964 words. Can calculate %
 def evaluate_score(string: str) -> int:
     score = 0
-    total = 0
+    total = 964
     tokens = string.split()
+
     for word in tokens:
         if not word.isnumeric():
             score += 1
-        total += 1
+
     return score / total
 
-def derivative(translator, x, i):
-    e = 0.02 #epsilon
-    x_e = x.copy()
-    x_e[i] += e
-    x_e[i] = min(max(x_e[i], 0), 1) #bounds
-    f_x = evaluate_score(translator.translate(x))
-    f_xe = evaluate_score(translator.translate(x_e))
-    return (f_xe - f_x) / e
+# uses f'(x) = lim h->0 (f(x+h) - f(x))/h formula to determine derivative 
+def derivative(translator, setting, i):
+    nudge = 0.02 #h value
+    setting_nudged = setting.copy()
 
-a = 0.01
+    setting_nudged[i] += nudge
+    setting_nudged[i] = min(max(setting_nudged[i], 0), 1) #bounds
 
-def gradient_descent(start, a, steps):
-    x = start.copy()
-    best_rate = evaluate_score(translator.translate(x))
-    best_x = x.copy()
+    f_setting = evaluate_score(translator.translate(setting))
+    f_settingnudged = evaluate_score(translator.translate(setting_nudged))
+
+    return (f_settingnudged - f_setting) / nudge
+
+def gradient_descent(start_settings, learning_rate, steps):
+    current_settings = start_settings.copy()
+    best_rate = evaluate_score(translator.translate(current_settings))
+    best_x = current_settings.copy()
+    
     for step in range(steps):    
-        gradient = [derivative(translator, x, i) for i in range(len(x))]
+        #deriv_settings = [derivative(translator, current_settings, i) for i in range(len(current_settings))]
+        deriv_settings = []
+        for i in range(len(current_settings)):
+            deriv_settings.append(derivative(translator, current_settings, i))
 
-        for i in range(len(x)):
-            x[i] += a*gradient[i]
-            x[i] = min(max(x[i], 0), 1) #keeps within bounds 0-1
+            current_settings[i] += learning_rate*deriv_settings[i] #update settings
+            current_settings[i] = min(max(current_settings[i], 0), 1) #keeps within bounds 0-1
         
-        rate = evaluate_score(translator.translate(x)) #translate updated x
+        rate = evaluate_score(translator.translate(current_settings)) #translate updated x
+        
         if rate > best_rate:
             best_rate = rate
-            best_x = x.copy()
+            best_x = current_settings.copy()
         #print(f"Iteration {step+1}: x = {x}, Rate: {rate}")
 
     return best_x, best_rate
 
-#random settings
-#for index in sample_settings:
-  #  translated_string = translator.translate(index)
-  #  print(translated_string)
+learning_rate = 0.01
 decode_rate = []
 settings = []
 best_rate_overall = 0
 best_settings_overall = []
 
-for index in sample_settings:
-    final_settings, final_rate = gradient_descent(index, a, 100)
+for i in original_settings:
+    final_settings, final_rate = gradient_descent(i, learning_rate, 100)
     #translated_string = translator.translate(final_settings)
     #print(translated_string)
     #print(f'best settings: ', final_settings)
@@ -83,6 +89,8 @@ print(translated_string)
 # print(settings)
 # print(decode_rate)
 settings = np.array(settings)
+
+# code from assignment 1 document (cite)
 # generate a scatter plot
 plt.scatter(x=settings[:, 0],
             y=settings[:, 1],
