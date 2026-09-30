@@ -7,6 +7,10 @@ translator = UniversalTranslator(n_dim=2)
 # demo of how to use the UniversalTranslator object. You can delete these lines
 #sample_settings = [[0, 0.3], [0, 0.6], [0, 0.9]]
 
+# data for plot
+settings_tried = []
+decode_rates = []
+
 # Evaluates how well a string is translated
 # Note: The string has 964 words. Can calculate %
 def evaluate_score(string: str) -> int:
@@ -34,21 +38,23 @@ def derive(settings, index: int, nudge: float):
 
 def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
     for i in range(max_steps):
-        old_settings = settings.copy()
-
+        old_settings = settings.copy()  
+        settings_tried.append(old_settings) # record for plot
         for j in range(len(settings)):
             settings[j] =  settings[j] + (learn_rate * derive(old_settings, j, nudge))
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
+
+        decode_rates.append(translator.translate(settings)) # record for plot
 
         diff = 0 # reset for each step
         for j in range(len(settings)):
             diff += abs(old_settings[j] - settings[j]) # stop if close to maxima
 #        print(f'grad: {derive(old_settings, j, nudge)}')
         if (diff < tolerance):
-            print(f'Reached maxima,diff={diff}', end="")
+            print(f'Reached maxima,diff={diff}')
             break
-        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
+#        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
     return settings
 
 #random settings
@@ -59,20 +65,16 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 
 # MAIN
 # initial values 
-start_values = np.array([0.5, 0.9])
+start_values = np.array([0.3, 0.6])
 learn_rate = 0.0005
-nudge = 0.5
+nudge = 0.1
 max_steps = 1000
 tolerance = 1e-5
-# data for plot
-settings_tried = np.array([[]])
-decode_rates = np.array([])
 
 result = gradient_descent(start_values, nudge, learn_rate, max_steps, tolerance)
 final_string = translator.translate(result)
 final_score = evaluate_score(final_string)
 print(f'# solution: {result} Score: {final_score}')
-print(derive(start_values, 1, nudge))
 
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
@@ -82,17 +84,16 @@ print(f'# settings tried: {translator.n_settings_tried()}')
 
 # given settings: a Nx2 array of N setting combinations
 # and decode_rate: a length-N array of decode rates corresponding to those settings
-
-#settings = np.array(sample_settings)
+settings_plot = np.array(settings_tried)
 # generate a scatter plot
-#plt.scatter(x=settings_tried[:, 0],
-#            y=settings_tried[:, 1],
-#            c=decode_rates,
-#            vmin=0, vmax=1
-#           )
+plt.scatter(x=settings_plot[:, 0],
+            y=settings_plot[:, 1],
+            c=decode_rates,
+            vmin=0, vmax=1
+           )
 #
 # add colorbar and gridlines
-#cbar = plt.colorbar(label="decode rate")
+cbar = plt.colorbar(label="decode rate")
 plt.grid()
 
 # add labels
@@ -101,4 +102,6 @@ plt.ylabel('knob 1 setting')
 plt.title('decode rates for settings tried')
 
 # display
-#plt.show()
+plt.show()
+#print(len(settings_plot))
+#print(len(decode_rates))
