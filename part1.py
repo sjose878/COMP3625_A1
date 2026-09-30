@@ -30,14 +30,15 @@ def derive(settings, index, nudge):
     derivative = (x2 - x1)/nudge # definiton of a derivative as a limit
     return derivative
 
-def gradient_descent(settings, nudge, decode_rate: float, max_steps: int):
+def gradient_descent(settings, nudge, learn_rate: float, max_steps: int):
     for i in range(max_steps):
         index = 0 # track which knob is currently being derived
         for knob in settings:
-            new_setting =  knob + (decode_rate * derive(settings, index, nudge))
+            new_setting =  knob + (learn_rate * derive(settings, index, nudge))
             knob = new_setting
             index += 1
             if (new_setting - knob) < 0.0005: # stop if close to maxima
+                print("Max steps exceeded")
                 break
         print(f'# Score: {evaluate_score(translator.translate(settings))}')
     return settings
@@ -50,11 +51,16 @@ def gradient_descent(settings, nudge, decode_rate: float, max_steps: int):
     print("LINE BREAK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 
 # MAIN
+# initial values 
 start_values = np.array([0.0, 0.0])
-decode_rate = 0.1
+learn_rate = 0.1
 nudge = 0.001
 max_steps = 1000
-result = gradient_descent(start_values, nudge, decode_rate, max_steps)
+# data for plot
+settings_tried = np.array([[]])
+decode_rates = np.array([])
+
+result = gradient_descent(start_values, nudge, learn_rate, max_steps)
 final_string = translator.translate(result)
 final_score = evaluate_score(final_string)
 print(f'# solution: {result} Score: {final_score}')
@@ -67,23 +73,23 @@ print(f'# settings tried: {translator.n_settings_tried()}')
 
 # given settings: a Nx2 array of N setting combinations
 # and decode_rate: a length-N array of decode rates corresponding to those settings
-#decode_rate_used = [1, 0.5, 0.1]
+
 #settings = np.array(sample_settings)
 # generate a scatter plot
-#plt.scatter(x=settings[:, 0],
-#            y=settings[:, 1],
-#            c=decode_rate,
-#            vmin=0, vmax=1
-#            )
+plt.scatter(x=settings_tried[:, 0],
+            y=settings_tried[:, 1],
+            c=decode_rates,
+            vmin=0, vmax=1
+           )
 #
 # add colorbar and gridlines
-#cbar = plt.colorbar(label="decode rate")
-#plt.grid()
+cbar = plt.colorbar(label="decode rate")
+plt.grid()
 
 # add labels
-#plt.xlabel('knob 0 setting')
-#plt.ylabel('knob 1 setting')
-#plt.title('decode rates for settings tried')
+plt.xlabel('knob 0 setting')
+plt.ylabel('knob 1 setting')
+plt.title('decode rates for settings tried')
 
 # display
-#plt.show()
+plt.show()
