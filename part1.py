@@ -9,7 +9,8 @@ settings_tried = []
 decode_rates = []
 
 # Evaluates how well a string is translated
-# Note: The string has 964 words. Can calculate %
+# @arg string is the translated string from translator
+# Note: The string has 964 words.
 def evaluate_score(string: str) -> int:
     score = 0
     tokens = string.split()
@@ -19,8 +20,9 @@ def evaluate_score(string: str) -> int:
     result = score/len(tokens)
     return result
 
-# 
+
 # @arg start_values is a np.array that represents the knob settings first tried
+# @arg index tells which knob is being derived with respect to
 # @arg nudge changes how much x2 differs from x1 (np.array)
 def derive(settings, index: int, nudge: float):
     string1 = translator.translate(settings)
@@ -32,12 +34,18 @@ def derive(settings, index: int, nudge: float):
     derivative = (x2 - x1)/nudge # definiton of a derivative as a limit
     return derivative
 
+# @arg settings is the knob settings
+# @arg nudge is how much x2 differs from x1 when calculating the slope in derive()
+# @learn_rate is how fast the search function "explores"
+# @max_steps is the max amount of steps the search function does before automatically stopping
+# @tolerance tells how little change between steps the function will tolerate before it decides it has reached a maxima or plateau
 def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
     for i in range(max_steps):
         old_settings = settings.copy()  
         settings_tried.append(old_settings) # record for plot
-        for j in range(len(settings)):
-            settings[j] =  settings[j] + (learn_rate * derive(old_settings, j, nudge))
+
+        for j in range(len(settings)): # for each knob in settings
+            settings[j] =  settings[j] + (learn_rate * derive(old_settings, j, nudge)) #calculate step
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
 
@@ -55,7 +63,7 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 
 # MAIN
 # initial values 
-start_values = np.array([0.1, 0.0])
+start_values = np.array([0.5, 0.5])
 learn_rate = 0.01
 nudge = 0.1
 max_steps = 1000
@@ -68,9 +76,6 @@ print(f'# solution: {result} Score: {final_score}')
 
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
-
-# given settings: a Nx2 array of N setting combinations
-# and decode_rate: a length-N array of decode rates corresponding to those settings
 
 # given settings: a Nx2 array of N setting combinations
 # and decode_rate: a length-N array of decode rates corresponding to those settings
