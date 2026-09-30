@@ -4,21 +4,9 @@ import numpy as np
 # create the UniversalTranslatsor object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
-# demo of how to use the UniversalTranslator object. You can delete these lines
-#sample_settings = [np.random.rand(2).tolist() for _ in range(25)]
-# sample_settings = [
-#     [np.random.uniform(0.2, 0.7), np.random.uniform(0.6, 1.0)]
-#     for _ in range(25)
-# ]
-# sample_settings = [
-#     [np.random.uniform(0, 1), np.random.uniform(0, 1)]
-#     for _ in range(25)
-# ]
-sample_settings = [
-    [np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)]
-    for _ in range(25)
-]
-medium_setting = [[0.5, 0.5]]
+#sample_settings = [np.random.rand(2).tolist() for num in range(25)]
+sample_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
+
 # Evaluates how well a string is translated
 # Note: The string has 964 words. Can calculate %
 def evaluate_score(string: str) -> int:
@@ -49,7 +37,7 @@ def gradient_descent(start, a, steps):
     for step in range(steps):    
         gradient = [derivative(translator, x, i) for i in range(len(x))]
 
-        for i in range(2):
+        for i in range(len(x)):
             x[i] += a*gradient[i]
             x[i] = min(max(x[i], 0), 1) #keeps within bounds 0-1
         
@@ -86,6 +74,7 @@ for index in sample_settings:
 
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
+print(f'Best settings: {best_settings_overall} Best rate: {best_rate_overall}')
 translated_string = translator.translate(best_settings_overall)
 print(translated_string)
 
