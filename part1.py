@@ -4,6 +4,7 @@ import numpy as np
 # create the UniversalTranslator object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
+rng = np.random.default_rng()
 # data for plot
 settings_tried = []
 decode_rates = []
@@ -63,16 +64,27 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 
 # MAIN
 # initial values 
-start_values = np.array([0.5, 0.5])
+num_rand_settings = 5
+rand_settings = []
+for i in np.arange(num_rand_settings):
+    rand_settings.append([rng.random(),rng.random()])
+
+start_values = np.array(rand_settings)
 learn_rate = 0.01
 nudge = 0.1
 max_steps = 1000
 tolerance = 1e-5
 
-result = gradient_descent(start_values, nudge, learn_rate, max_steps, tolerance)
-final_string = translator.translate(result)
-final_score = evaluate_score(final_string)
-print(f'# solution: {result} Score: {final_score}')
+best_score = -1
+for setting in start_values:
+    result = gradient_descent(setting, nudge, learn_rate, max_steps, tolerance)
+    final_string = translator.translate(result)
+    final_score = evaluate_score(final_string)
+    if final_score >= best_score:
+        best_result = final_string
+        best_score = final_score
+
+print(f'# solution: {best_result} Score: {best_score}')
 
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
