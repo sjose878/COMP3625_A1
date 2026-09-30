@@ -57,24 +57,24 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
         for j in range(len(settings)):
             diff += abs(old_settings[j] - settings[j]) # stop if close to maxima
         if (diff < tolerance):
-#            print(f'Reached maxima,diff={diff}')
+            print(f'Reached maxima,diff={diff}')
             break
         
-#        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
+        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
     return settings
 
 # MAIN
 # initial values 
-num_rand_settings = 5
+num_rand_settings = 100
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
 
 start_values = np.array(rand_settings)
 learn_rate = 0.001
-nudge = 0.001
-max_steps = 2000
-tolerance = 1e-6
+nudge = 0.05
+max_steps = 1000
+tolerance = 1e-5
 
 # Keeps track of the best settings found
 best_score = -1
@@ -82,7 +82,7 @@ for setting in start_values:
     result = gradient_descent(setting, nudge, learn_rate, max_steps, tolerance)
     final_string = translator.translate(result)
     final_score = evaluate_score(final_string)
-    if final_score >= best_score:
+    if final_score > best_score:
         best_result = result
         best_score = final_score
         print(f'Best updated: solution: {best_result} Score: {best_score:.2f}')
