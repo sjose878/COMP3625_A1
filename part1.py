@@ -15,7 +15,8 @@ def evaluate_score(string: str) -> int:
     for word in tokens:
         if not word.isnumeric():
             score += 1
-    return score
+    result = score/len(tokens)
+    return result
 
 # 
 # @arg start_values is a np.array that represents the knob settings first tried
@@ -28,7 +29,6 @@ def derive(settings, index: int, nudge: float):
     string2 = translator.translate(diff_settings)
     x2 = evaluate_score(string2)
     derivative = (x2 - x1)/nudge # definiton of a derivative as a limit
-    print("x1:", x1, "x2:", x2)
 
     return derivative
 
@@ -41,14 +41,14 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
 
-        diff = 0
+        diff = 0 # reset for each step
         for j in range(len(settings)):
             diff += abs(old_settings[j] - settings[j]) # stop if close to maxima
-        print(f'grad: {derive(old_settings, j, nudge)}')
+#        print(f'grad: {derive(old_settings, j, nudge)}')
         if (diff < tolerance):
             print(f'Reached maxima,diff={diff}', end="")
             break
-        print(f'Score: {evaluate_score(translator.translate(settings))}')
+        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
     return settings
 
 #random settings
@@ -59,11 +59,11 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 
 # MAIN
 # initial values 
-start_values = np.array([0.0, 0.9])
-learn_rate = 0.05
-nudge = 0.005
+start_values = np.array([0.5, 0.9])
+learn_rate = 0.0005
+nudge = 0.5
 max_steps = 1000
-tolerance = 1e-4
+tolerance = 1e-5
 # data for plot
 settings_tried = np.array([[]])
 decode_rates = np.array([])
