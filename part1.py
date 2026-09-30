@@ -67,6 +67,9 @@ def gradient_descent(start, a, steps):
   #  print(translated_string)
 decode_rate = []
 settings = []
+best_rate_overall = 0
+best_settings_overall = []
+
 for index in sample_settings:
     final_settings, final_rate = gradient_descent(index, a, 100)
     #translated_string = translator.translate(final_settings)
@@ -76,14 +79,20 @@ for index in sample_settings:
     decode_rate.append(final_rate)
     settings.append(final_settings)
 
+    if final_rate > best_rate_overall:
+        best_rate_overall = final_rate
+        best_settings_overall = final_settings
+
+
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
+translated_string = translator.translate(best_settings_overall)
+print(translated_string)
 
 # given settings: a Nx2 array of N setting combinations
 # and decode_rate: a length-N array of decode rates corresponding to those settings
 # print(settings)
-best_rate = max(decode_rate)
-print(decode_rate)
+# print(decode_rate)
 settings = np.array(settings)
 # generate a scatter plot
 plt.scatter(x=settings[:, 0],
