@@ -4,9 +4,6 @@ import numpy as np
 # create the UniversalTranslator object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
-# demo of how to use the UniversalTranslator object. You can delete these lines
-#sample_settings = [[0, 0.3], [0, 0.6], [0, 0.9]]
-
 # data for plot
 settings_tried = []
 decode_rates = []
@@ -33,7 +30,6 @@ def derive(settings, index: int, nudge: float):
     string2 = translator.translate(diff_settings)
     x2 = evaluate_score(string2)
     derivative = (x2 - x1)/nudge # definiton of a derivative as a limit
-
     return derivative
 
 def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
@@ -50,22 +46,16 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
         diff = 0 # reset for each step
         for j in range(len(settings)):
             diff += abs(old_settings[j] - settings[j]) # stop if close to maxima
-#        print(f'grad: {derive(old_settings, j, nudge)}')
         if (diff < tolerance):
             print(f'Reached maxima,diff={diff}')
             break
+        
         print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
     return settings
 
-#random settings
-#for index in sample_settings:
-    translated_string = translator.translate(index)
-    print(translated_string)
-    print("LINE BREAK AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-
 # MAIN
 # initial values 
-start_values = np.array([0.1, 0.1])
+start_values = np.array([0.1, 0.0])
 learn_rate = 0.01
 nudge = 0.1
 max_steps = 1000
