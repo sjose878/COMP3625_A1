@@ -5,9 +5,10 @@ import numpy as np
 # create the UniversalTranslatsor object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
+
 #implement random -> targeted strategy
 #sample_settings = [np.random.rand(2).tolist() for num in range(25)]
-original_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
+#original_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
 
 # Evaluates how well a string is translated
 # Note: The string has 964 words. Can calculate %
@@ -35,6 +36,15 @@ def derivative(translator, setting, i):
 
     return (f_settingnudged - f_setting) / nudge
 
+# def target_area(start_settings):
+#     targeted_settings = []
+#     for i in start_settings:
+#         if start_settings[i] > targeted_settings[i]
+   
+#     targeted_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(25)]
+    
+#     return targeted_settings
+
 def gradient_descent(start_settings, learning_rate, steps):
     current_settings = start_settings.copy()
     best_rate = evaluate_score(translator.translate(current_settings))
@@ -58,13 +68,51 @@ def gradient_descent(start_settings, learning_rate, steps):
 
     return best_x, best_rate
 
-learning_rate = 0.01
+original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(15)]
+
+learning_rate = 0.1
 decode_rate = []
 settings = []
 best_rate_overall = 0
 best_settings_overall = []
+target_tuple = ()
+target_list = []
 
+#explore
 for i in original_settings:
+    final_settings, final_rate = gradient_descent(i, learning_rate, 500)
+
+    target_tuple = (final_settings, final_rate)
+    target_list.append(target_tuple)
+
+    decode_rate.append(final_rate)
+    settings.append(final_settings)
+   
+    if final_rate > best_rate_overall:
+        best_rate_overall = final_rate
+        best_settings_overall = final_settings
+
+target_list = sorted(target_list, key=lambda i: i[1], reverse=True)
+target_list = target_list[:3]
+print(target_list)
+
+knob0_vals = []
+knob1_vals = []
+
+for i in target_list:
+    knob0_vals.append(i[0][0])
+    knob1_vals.append(i[0][1])
+
+knob0_low = min(knob0_vals)
+knob0_high = max(knob0_vals)
+
+knob1_low = min(knob1_vals)
+knob1_high = max(knob1_vals)
+
+targeted_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(25)]
+
+#target
+for i in targeted_settings:
     final_settings, final_rate = gradient_descent(i, learning_rate, 100)
     #translated_string = translator.translate(final_settings)
     #print(translated_string)
