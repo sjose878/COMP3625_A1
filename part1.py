@@ -68,9 +68,9 @@ def gradient_descent(start_settings, learning_rate, steps):
 
     return best_x, best_rate
 
-original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(15)]
+original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(10)]
 
-learning_rate = 0.1
+learning_rate = 0.08
 decode_rate = []
 settings = []
 best_rate_overall = 0
@@ -80,7 +80,7 @@ target_list = []
 
 #explore
 for i in original_settings:
-    final_settings, final_rate = gradient_descent(i, learning_rate, 500)
+    final_settings, final_rate = gradient_descent(i, learning_rate, 100)
 
     target_tuple = (final_settings, final_rate)
     target_list.append(target_tuple)
@@ -109,7 +109,7 @@ knob0_high = max(knob0_vals)
 knob1_low = min(knob1_vals)
 knob1_high = max(knob1_vals)
 
-targeted_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(25)]
+targeted_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(20)]
 
 #target
 for i in targeted_settings:
