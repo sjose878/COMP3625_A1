@@ -45,7 +45,7 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
 
-        decode_rates.append(translator.translate(settings)) # record for plot
+        decode_rates.append(evaluate_score(translator.translate(settings))) # record for plot
 
         diff = 0 # reset for each step
         for j in range(len(settings)):
@@ -54,7 +54,7 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
         if (diff < tolerance):
             print(f'Reached maxima,diff={diff}')
             break
-#        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
+        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
     return settings
 
 #random settings
@@ -65,8 +65,8 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 
 # MAIN
 # initial values 
-start_values = np.array([0.3, 0.6])
-learn_rate = 0.0005
+start_values = np.array([0.1, 0.1])
+learn_rate = 0.01
 nudge = 0.1
 max_steps = 1000
 tolerance = 1e-5
@@ -85,6 +85,8 @@ print(f'# settings tried: {translator.n_settings_tried()}')
 # given settings: a Nx2 array of N setting combinations
 # and decode_rate: a length-N array of decode rates corresponding to those settings
 settings_plot = np.array(settings_tried)
+decode_rate_plot = np.array(decode_rates)
+
 # generate a scatter plot
 plt.scatter(x=settings_plot[:, 0],
             y=settings_plot[:, 1],
@@ -103,4 +105,5 @@ plt.title('decode rates for settings tried')
 
 # display
 plt.show()
+
 
