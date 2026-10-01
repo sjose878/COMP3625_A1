@@ -55,21 +55,21 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
         for j in range(len(settings)):
             diff += abs(old_settings[j] - settings[j]) # stop if close to maxima
         if (diff < tolerance):
-            print(f'Reached maxima,diff={diff}')
+            print(f'Reached maxima, diff={diff}')
             break
         
-        print(f'Score: {evaluate_score(translator.translate(settings))} Settings tried {translator.n_settings_tried()}')
+        print(f'GD Score: {evaluate_score(translator.translate(settings))} Settings tried {translator.n_settings_tried()}')
     return settings
 
 def hill_climb(settings, step_size: float, max_steps: int, knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings))
+
+    # Once a "a good area" is found, start exploting it
     for i in range(max_steps):
         if current_score > 0:
             step_size = 0.1
         if current_score > 0.5:
-            step_size = 0.005
-        if current_score > 0.6:
-            step_size = 0.0001
+            step_size = 0.01
 
         # Randomly choose only some of the knobs to change
         for j in np.random.choice(len(settings), knobs_changed, replace=False):
@@ -83,17 +83,17 @@ def hill_climb(settings, step_size: float, max_steps: int, knobs_changed: int):
                 settings = new_settings
                 current_score = new_score
             
-#        print(f"HC Score: {current_score}")
+        print(f"HC Score: {current_score}")
     return settings
 
-def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int):
+def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int, knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings))
     #accepted = True
     for i in range(max_steps):
 #        for j in range(len(settings)):
 
         # Randomly choose only some of the knobs to change
-        for j in np.random.choice(len(settings), size=2, replace=False):
+        for j in np.random.choice(len(settings), knobs_changed, replace=False):
             # get neighbor
             next = settings.copy()                
             next[j] += np.random.uniform(-step_size, step_size)
@@ -129,7 +129,7 @@ start_values = np.array(rand_settings)
 # GRADIENT DESCENT variables
 nudge = 0.1
 learn_rate = 0.003
-gd_max_steps = 1000
+gd_max_steps = 500
 tolerance = 1e-5 / len(rand_settings)
 
 # HILL CLIMBING variables
@@ -142,6 +142,7 @@ temp = 1.5 # higher temp -> more exploration
 cooling_rate = 0.99 # how fast exploration slows down
 sim_step_size = 0.2
 sim_max_steps = 500
+sim_num_knobs_changed = 3
 
 # Keeps track of the best settings found
 best_score = -1
@@ -152,7 +153,7 @@ for setting in start_values:
 # Hill Climbing
     result = hill_climb(setting, hc_step_size, hc_max_steps, hc_num_knobs_changed)
 # Simulated Anealing
-    #result = simulated_anealing(setting, temp, cooling_rate, sim_step_size, sim_max_steps)
+    #result = simulated_anealing(setting, temp, cooling_rate, sim_step_size, sim_max_steps, sim_num_knobs_changed)
  
     final_string = translator.translate(result)
     final_score = evaluate_score(final_string)
