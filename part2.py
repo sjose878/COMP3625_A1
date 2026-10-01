@@ -47,6 +47,7 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
         settings_tried.append(old_settings) # record for plot
 
         for j in range(len(settings)): # for each knob in settings
+            
             settings[j] =  settings[j] + (learn_rate * derive(old_settings, j, nudge)) #calculate step
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
@@ -60,21 +61,21 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
             print(f'Reached maxima,diff={diff}')
             break
         
-        print(f'Score: {evaluate_score(translator.translate(settings)):.2f}')
+        print(f'Score: {evaluate_score(translator.translate(settings)):.3f}')
     return settings
 
 # MAIN
 # initial values 
-num_rand_settings = 100
+num_rand_settings = 200
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
 
 start_values = np.array(rand_settings)
-learn_rate = 0.001
-nudge = 0.05
-max_steps = 1000
-tolerance = 1e-5
+learn_rate = 0.003
+nudge = 0.1
+max_steps = 10000
+tolerance = 1e-5 / len(rand_settings)
 
 # Keeps track of the best settings found
 best_score = -1
@@ -85,9 +86,9 @@ for setting in start_values:
     if final_score > best_score:
         best_result = result
         best_score = final_score
-        print(f'Best updated: solution: {best_result} Score: {best_score:.2f}')
+        print(f'Best updated: solution: {best_result} Score: {best_score:.3f}')
 
-print(f'# Final solution: {best_result} Score: {best_score:.2f}')
+print(f'# Final solution: {best_result} Score: {best_score:.3f}')
 
 
 # print total number of settings evaluated
