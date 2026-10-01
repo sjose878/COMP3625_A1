@@ -18,19 +18,6 @@ def evaluate_score(string: str) -> int:
 
     return score / total
 
-# uses f'(x) = lim h->0 (f(x+h) - f(x))/h formula to determine derivative 
-def derivative(translator, setting, i):
-    nudge = 0.02 #h value
-    setting_nudged = setting.copy()
-
-    setting_nudged[i] += nudge
-    setting_nudged[i] = min(max(setting_nudged[i], 0), 1) #bounds
-
-    f_setting = evaluate_score(translator.translate(setting))
-    f_settingnudged = evaluate_score(translator.translate(setting_nudged))
-
-    return (f_settingnudged - f_setting) / nudge
-
 def target_area(start_list):
     start_list = sorted(start_list, key=lambda i: i[1], reverse=True)
     start_list = start_list[:3]
@@ -51,6 +38,19 @@ def target_area(start_list):
     new_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(30)]
     
     return new_settings
+
+# uses f'(x) = lim h->0 (f(x+h) - f(x))/h formula to determine derivative 
+def derivative(translator, setting, i):
+    nudge = 0.02 #h value
+    setting_nudged = setting.copy()
+
+    setting_nudged[i] += nudge
+    setting_nudged[i] = min(max(setting_nudged[i], 0), 1) #bounds
+
+    f_setting = evaluate_score(translator.translate(setting))
+    f_settingnudged = evaluate_score(translator.translate(setting_nudged))
+
+    return (f_settingnudged - f_setting) / nudge
 
 def gradient_descent(start_settings, learning_rate, steps):
     current_settings = start_settings.copy()
@@ -83,16 +83,17 @@ def gradient_descent(start_settings, learning_rate, steps):
     return best_x, best_rate
 
 original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(15)]
-
 learning_rate = 0.08
+
 decode_rate = []
 settings = []
 best_rate_overall = 0
 best_settings_overall = []
+
+#random exploration
 target_tuple = ()
 target_list = []
 
-#random exploration
 for i in original_settings:
     final_settings, final_rate = gradient_descent(i, learning_rate, 50)
 
@@ -119,8 +120,9 @@ for i in targeted_settings:
         best_settings_overall = final_settings
 
 # print total number of settings evaluated
-print(f'# settings tried: {translator.n_settings_tried()}')
-print(f'Best settings: {best_settings_overall} Best rate: {best_rate_overall}')
+print(f'Best settings: {best_settings_overall} Decode rate achieved: {best_rate_overall}')
+print(f'# settings tried: {translator.n_settings_tried()}\n')
+print(f'Translated message using best settings: ')
 translated_string = translator.translate(best_settings_overall)
 print(translated_string)
 
