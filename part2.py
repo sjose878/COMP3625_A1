@@ -1,14 +1,10 @@
 from translator import UniversalTranslator
 import numpy as np
 
-
 # create the UniversalTranslator object, with 10 knobs
 translator = UniversalTranslator(n_dim=10)
 
 rng = np.random.default_rng()
-# data for plot
-settings_tried = []
-decode_rates = []
 
 # Evaluates how well a string is translated
 # @arg string is the translated string from translator
@@ -44,15 +40,13 @@ def derive(settings, index: int, nudge: float):
 def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
     for i in range(max_steps):
         old_settings = settings.copy()  
-        settings_tried.append(old_settings) # record for plot
 
         for j in range(len(settings)): # for each knob in settings
-            
-            settings[j] =  settings[j] + (learn_rate * derive(old_settings, j, nudge)) #calculate step
+            gradient = derive(old_settings, j, nudge)
+#            noise = np.random.normal(0, 0.1)
+            settings[j] =  settings[j] + learn_rate * (gradient) #calculate step
             # stay within bounds
             settings[j] = max(0, min(settings[j], 1))
-
-        decode_rates.append(evaluate_score(translator.translate(settings))) # record for plot
 
         diff = 0 # reset for each step
         for j in range(len(settings)):
@@ -61,12 +55,32 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
             print(f'Reached maxima,diff={diff}')
             break
         
-        print(f'Score: {evaluate_score(translator.translate(settings)):.3f}')
+        print(f'Score: {evaluate_score(translator.translate(settings))} Settings tried {translator.n_settings_tried()}')
     return settings
+
+def hill_climb(settings, step_size, max_steps):
+    best_score = evaluate_score(translator.translate(settings))
+
+    for i in range(max_steps):
+        for j in range(len(settings)):
+            candidate = settings.copy()
+            candidate[j] += np.random.uniform(-step_size, step_size)
+            candidate[j] = max(0, min(candidate[j], 1))
+
+            score = evaluate_score(translator.translate(candidate))
+
+            if score >= best_score:
+                settings = candidate
+                best_score = score
+
+        print(f"Score: {best_score:.3f}")
+
+    return settings
+
 
 # MAIN
 # initial values 
-num_rand_settings = 200
+num_rand_settings = 5
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
@@ -74,13 +88,14 @@ for i in np.arange(num_rand_settings):
 start_values = np.array(rand_settings)
 learn_rate = 0.003
 nudge = 0.1
-max_steps = 10000
+max_steps = 1000
 tolerance = 1e-5 / len(rand_settings)
+step_size = 0.2
 
 # Keeps track of the best settings found
 best_score = -1
 for setting in start_values:
-    result = gradient_descent(setting, nudge, learn_rate, max_steps, tolerance)
+    result = hill_climb(setting, step_size, max_steps)
     final_string = translator.translate(result)
     final_score = evaluate_score(final_string)
     if final_score > best_score:
