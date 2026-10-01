@@ -88,34 +88,38 @@ def hill_climb(settings, step_size: float, max_steps: int, knobs_changed: int):
 
 def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int, knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings))
-    #accepted = True
+    accepted = True
     for i in range(max_steps):
-#        for j in range(len(settings)):
 
+        if accepted and current_score != 0:
+            step_size *= 1
+        else:
+            step_size *= 1
+        step_size = np.clip(step_size, 0.01, 0.3)
+
+        # get neighbor
+        next = settings.copy()
         # Randomly choose only some of the knobs to change
-        for j in np.random.choice(len(settings), knobs_changed, replace=False):
-            # get neighbor
-            next = settings.copy()                
+        for j in np.random.choice(len(settings), knobs_changed, replace=False):                
             next[j] += np.random.uniform(-step_size, step_size)
             next[j] = max(LOWER_LIMIT, min(next[j], UPPER_LIMIT)) # stay in bounds
 
-            new_score = evaluate_score(translator.translate(next))
-            delta = new_score - current_score
+        new_score = evaluate_score(translator.translate(next))
+        delta = new_score - current_score
 
             # accept if neighbor moves uphill
-                # might be rejected randomly based off temperature
-            if (delta >= 0) or rng.random() < math.exp(delta/temp):
-                settings = next
-                current_score = new_score
-             #   accepted = True
-            #else:
-            #    accepted = False
-            print(f"Sim_Aneal Score: {current_score}")
+            # might be rejected randomly based off temperature
+        if (delta >= 0) or rng.random() < math.exp(delta/temp):
+            settings = next
+            current_score = new_score
+            accepted = True
+        else:
+            accepted = False
+        print(f"Sim_Aneal Score: {current_score}")
 
-            temp *= cooling_rate
-                # stop once temperature has fully cooled down
-            if temp < 1e-8:
-                break
+        temp *= cooling_rate
+        if temp < 1e-8: # stop once temperature has fully cooled down
+            break
     return settings
 
 # MAIN
@@ -138,11 +142,11 @@ hc_step_size = 0.2
 hc_num_knobs_changed = 4
 
 # SIMULATED ANEALING variables
-temp = 1.5 # higher temp -> more exploration
-cooling_rate = 0.99 # how fast exploration slows down
+temp = 2 # higher temp -> more exploration
+cooling_rate = 0.995 # how fast exploration slows down
 sim_step_size = 0.2
-sim_max_steps = 500
-sim_num_knobs_changed = 3
+sim_max_steps = 1000
+sim_num_knobs_changed = 4
 
 # Keeps track of the best settings found
 best_score = -1
