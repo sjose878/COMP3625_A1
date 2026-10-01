@@ -12,7 +12,7 @@ Write your answers to the following questions in this file, *after* completing e
 
 # 3) If your program was seen as an "agent program", which of the agent types discussed in class would it be?
 
-
+If our program was an "agent program," then it would be a utility-based agent. This is because the evaluation of each setting's decode rate score acts much like a utility function. Knob settings are ranked based on the value of their decode rates are, with a higher decode rate being more desirable. This is the performance measure to be maximized by the program. 
 
 
 # 4) it's often said that the simplest solution is the best. How well would a basic hill-climbing search perform in this problem? Justify your answer using your findings or plots from part 1 (you can answer this question whether or not you used hill-climbing as your approach). 
@@ -20,3 +20,5 @@ Write your answers to the following questions in this file, *after* completing e
 
 
 # 5) When you moved from the 2- to the 10-knob problem, did you change your search algorithm? Why or why not?
+
+Yes, we ended up changing our search algorithm when moving to the 10-knob problem. We found that no matter what settings we tried for gradient descent, the best decode rate found was always extremely low, ranging from 18% to even 0%. This led us to change the algorithm we were using, instead opting for a hill climbing approach, which produced much better results.
