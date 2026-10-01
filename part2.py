@@ -61,7 +61,7 @@ def evaluate_score(string: str) -> int:
 
 
 
-#def hill_climb(settings, step_size: float, max_steps: int):
+def hill_climb(settings, step_size: float, max_steps: int):
     current_score = evaluate_score(translator.translate(settings))
     for i in range(max_steps):
         if current_score > 0:
@@ -77,16 +77,18 @@ def evaluate_score(string: str) -> int:
                 settings = new_settings
                 current_score = new_score
             
-#        print(f"Score: {current_score}")
+        print(f"HC Score: {current_score}")
     return settings
 
 def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int):
     current_score = evaluate_score(translator.translate(settings))
-
+    #accepted = True
     for i in range(max_steps):
-        for j in range(len(settings)):
+
+#        for j in range(len(settings)):
+        for j in np.random.choice(len(settings), size=5, replace=False):
             # get neighbor
-            next = settings.copy()
+            next = settings.copy()                
             next[j] += np.random.uniform(-step_size, step_size)
             next[j] = max(0, min(next[j], 1)) # stay in bounds
 
@@ -94,15 +96,17 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
             delta = new_score - current_score
 
             # accept if neighbor moves uphill
-            # might be rejected randomly based off temperature
+                # might be rejected randomly based off temperature
             if (delta >= 0) or rng.random() < math.exp(delta/temp):
                 settings = next
                 current_score = new_score
-
-#            print(f"Score: {current_score}")
+             #   accepted = True
+            #else:
+            #    accepted = False
+            print(f"Sim_Aneal Score: {current_score}")
 
             temp *= cooling_rate
-            # stop once temperature has fully cooled down
+                # stop once temperature has fully cooled down
             if temp < 1e-8:
                 break
     return settings
@@ -112,7 +116,7 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
 
 # MAIN
 # initial values 
-num_rand_settings = 100
+num_rand_settings = 30
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
@@ -120,7 +124,7 @@ for i in np.arange(num_rand_settings):
 start_values = np.array(rand_settings)
 
 # FOR MULTIPLE SEARCH FUNCTIONS
-max_steps = 500
+max_steps = 1000
 step_size = 0.2
 
 # GRADIENT DESCENT
