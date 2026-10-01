@@ -2,6 +2,9 @@ from translator import UniversalTranslator
 import numpy as np
 import math
 
+LOWER_LIMIT = 0
+UPPER_LIMIT = 1.0
+
 # create the UniversalTranslator object, with 10 knobs
 translator = UniversalTranslator(n_dim=10)
 
@@ -23,7 +26,7 @@ def evaluate_score(string: str) -> int:
 # @arg start_values is a np.array that represents the knob settings first tried
 # @arg index tells which knob is being derived with respect to
 # @arg nudge changes how much x2 differs from x1 (np.array)
-#def derive(settings, index: int, nudge: float):
+def derive(settings, index: int, nudge: float):
     string1 = translator.translate(settings)
     x1 = evaluate_score(string1)
     diff_settings = settings.copy()
@@ -38,7 +41,7 @@ def evaluate_score(string: str) -> int:
 # @learn_rate is how fast the search function "explores"
 # @max_steps is the max amount of steps the search function does before automatically stopping
 # @tolerance tells how little change between steps the function will tolerate before it decides it has reached a maxima or plateau
-#def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
+def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, tolerance: float):
     for i in range(max_steps):
         old_settings = settings.copy()  
 
@@ -47,7 +50,7 @@ def evaluate_score(string: str) -> int:
 #            noise = np.random.normal(0, 0.1)
             settings[j] =  settings[j] + learn_rate * (gradient) #calculate step
             # stay within bounds
-            settings[j] = max(0, min(settings[j], 1))
+            settings[j] = max(LOWER_LIMIT, min(settings[j], UPPER_LIMIT))
 
         diff = 0 # reset for each step
         for j in range(len(settings)):
@@ -61,15 +64,19 @@ def evaluate_score(string: str) -> int:
 
 
 
-def hill_climb(settings, step_size: float, max_steps: int):
+def hill_climb(settings, step_size: float, max_steps: int, knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings))
     for i in range(max_steps):
         if current_score > 0:
             step_size = 0.1
-        for j in range(len(settings)):
+        if current_score > 0.5:
+            step_size = 0.01
+            
+        # Randomly choose only some of the knobs to change
+        for j in np.random.choice(len(settings), knobs_changed, replace=False):
             new_settings = settings.copy()
             new_settings[j] += np.random.uniform(-step_size, step_size)
-            new_settings[j] = max(0, min(new_settings[j], 1)) # stay in bounds
+            new_settings[j] = max(LOWER_LIMIT, min(new_settings[j], UPPER_LIMIT)) # stay in bounds
 
             new_score = evaluate_score(translator.translate(new_settings))
 
@@ -84,13 +91,14 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
     current_score = evaluate_score(translator.translate(settings))
     #accepted = True
     for i in range(max_steps):
-
 #        for j in range(len(settings)):
-        for j in np.random.choice(len(settings), size=5, replace=False):
+
+        # Randomly choose only some of the knobs to change
+        for j in np.random.choice(len(settings), size=2, replace=False):
             # get neighbor
             next = settings.copy()                
             next[j] += np.random.uniform(-step_size, step_size)
-            next[j] = max(0, min(next[j], 1)) # stay in bounds
+            next[j] = max(LOWER_LIMIT, min(next[j], UPPER_LIMIT)) # stay in bounds
 
             new_score = evaluate_score(translator.translate(next))
             delta = new_score - current_score
@@ -116,30 +124,38 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
 
 # MAIN
 # initial values 
-num_rand_settings = 30
+num_rand_settings = 10
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
-
 start_values = np.array(rand_settings)
 
-# FOR MULTIPLE SEARCH FUNCTIONS
-max_steps = 1000
-step_size = 0.2
+# GRADIENT DESCENT variables
+nudge = 0.1
+learn_rate = 0.003
+gd_max_steps = 1000
+tolerance = 1e-5 / len(rand_settings)
 
-# GRADIENT DESCENT
-#learn_rate = 0.003
-#nudge = 0.1
-#tolerance = 1e-5 / len(rand_settings)
+# HILL CLIMBING variables
+hc_max_steps = 1000
+hc_step_size = 0.2
+hc_num_knobs_changed = 4
 
-# SIMULATED ANEALING
+# SIMULATED ANEALING variables
 temp = 1.5 # higher temp -> more exploration
 cooling_rate = 0.99 # how fast exploration slows down
+sim_step_size = 0.2
+sim_max_steps = 500
 
 # Keeps track of the best settings found
 best_score = -1
 for setting in start_values:
-    result = simulated_anealing(setting, temp, cooling_rate, step_size, max_steps)
+# Gradient Descent
+    #result = gradient_descent(setting, nudge, learn_rate, gd_max_steps, tolerance)
+# Hill Climbing
+    result = hill_climb(setting, hc_step_size, hc_max_steps, hc_num_knobs_changed)
+# Simulated Anealing
+    #result = simulated_anealing(setting, temp, cooling_rate, sim_step_size, sim_max_steps) 
     final_string = translator.translate(result)
     final_score = evaluate_score(final_string)
     if final_score > best_score:
