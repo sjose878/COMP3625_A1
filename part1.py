@@ -5,7 +5,6 @@ import numpy as np
 # create the UniversalTranslatsor object, with 2 knobs
 translator = UniversalTranslator(n_dim=2)
 
-
 #implement random -> targeted strategy
 #sample_settings = [np.random.rand(2).tolist() for num in range(25)]
 #original_settings = [[np.random.uniform(0.05, 0.3), np.random.uniform(0.5, 0.7)] for num in range(25)]
@@ -49,8 +48,10 @@ def gradient_descent(start_settings, learning_rate, steps):
     current_settings = start_settings.copy()
     best_rate = evaluate_score(translator.translate(current_settings))
     best_x = current_settings.copy()
+    tolerance = 0.0005
     
-    for step in range(steps):    
+    for step in range(steps): 
+        old_settings = current_settings.copy() 
         #deriv_settings = [derivative(translator, current_settings, i) for i in range(len(current_settings))]
         deriv_settings = []
         for i in range(len(current_settings)):
@@ -58,7 +59,15 @@ def gradient_descent(start_settings, learning_rate, steps):
 
             current_settings[i] += learning_rate*deriv_settings[i] #update settings
             current_settings[i] = min(max(current_settings[i], 0), 1) #keeps within bounds 0-1
-        
+
+        #tolerance check
+        diff = 0.0 # reset for each step
+        for j in range(len(current_settings)):
+            diff += abs(old_settings[j] - current_settings[j]) # stop if close to maxima
+        if (diff < tolerance):
+            #print(f'Reached maxima, diff={diff}')
+            break
+
         rate = evaluate_score(translator.translate(current_settings)) #translate updated x
         
         if rate > best_rate:
@@ -68,7 +77,7 @@ def gradient_descent(start_settings, learning_rate, steps):
 
     return best_x, best_rate
 
-original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(10)]
+original_settings = [[np.random.uniform(0.0, 1.0), np.random.uniform(0.0, 1.0)] for num in range(15)]
 
 learning_rate = 0.08
 decode_rate = []
@@ -80,7 +89,7 @@ target_list = []
 
 #explore
 for i in original_settings:
-    final_settings, final_rate = gradient_descent(i, learning_rate, 100)
+    final_settings, final_rate = gradient_descent(i, learning_rate, 50)
 
     target_tuple = (final_settings, final_rate)
     target_list.append(target_tuple)
@@ -109,7 +118,7 @@ knob0_high = max(knob0_vals)
 knob1_low = min(knob1_vals)
 knob1_high = max(knob1_vals)
 
-targeted_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(20)]
+targeted_settings = [[np.random.uniform(knob0_low, knob0_high), np.random.uniform(knob1_low, knob1_high)] for num in range(30)]
 
 #target
 for i in targeted_settings:
