@@ -2,7 +2,9 @@ Write your answers to the following questions in this file, *after* completing e
 
 # 1) How many settings must be evaluated to *exhaustively* search for the best set (e.g. through some kind of brute-force search). State your assumptions and explain how you arrived at your answer. How does your solution compare to this (quantitatively)?
 
-
+Assuming we had infinite time and power for the computer, we could try literally every 2 knob setting combo. Our solution returns 2 floats both with 16 decimal places, so we could inputting settings for every unique float up to 16 digits. The number of permutations for two 16 digit numbers is astronomically high.
+Using the permutation with repetition formula, it would be (9e15)^2 = 8.1e31 permutations.
+Our solution tries ~15000 settings. While still a large number, it is much smaller than 8.1e31
 
 # 2) Why is the 10-knob problem harder than the 2-knob problem? (It may help you to know that the *mechanics* of both problems were the same: the relationship between settings and performance had the same general characteristics, there were just more settings to tune in the 10-knob problem).
 
