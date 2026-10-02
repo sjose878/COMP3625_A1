@@ -17,6 +17,7 @@ If our program was an "agent program," then it would be a utility-based agent. T
 
 # 4) it's often said that the simplest solution is the best. How well would a basic hill-climbing search perform in this problem? Justify your answer using your findings or plots from part 1 (you can answer this question whether or not you used hill-climbing as your approach). 
 
+Assuming a basic hill-climbing search means a single greedy search, it would do horribly. It is very likely to get stuck on a local maxima or a flat plateau and never reach the global maxima. But it is still useful if modified with extra features. In part 2, we used a hill-climb that made stochastic moves to try to escape plateaus and had it restart multiple times with random values so that it had a chance to be "spawned" near the global maxima. Our decode rate for 10 knobs using hill-climbing is not super accurate but it has a fast time complexity.
 
 
 # 5) When you moved from the 2- to the 10-knob problem, did you change your search algorithm? Why or why not?
