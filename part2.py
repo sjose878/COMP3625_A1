@@ -165,7 +165,7 @@ tolerance = 1e-5 / len(rand_settings)
 # HILL CLIMBING variables
 hc_max_steps = 2000
 hc_step_size = 0.2
-hc_num_knobs_changed = 4
+hc_num_knobs_changed = 3
 
 # SIMULATED ANEALING variables
 temp = 2 # higher temp -> more exploration
@@ -190,7 +190,8 @@ for setting in start_values:
     if final_score > best_score:
         best_result = result
         best_score = final_score
-        print(f'Current best solution: {best_result}\nCurrent score: {best_score:.3f}\n')
+        print(f'Current best solution: {best_result}')
+        print(f'Current score: {best_score:.3f}')
 
 print(f'# Final solution: {best_result}\n# Decode rate: {best_score:.3f}')
 # print total number of settings evaluated
