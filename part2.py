@@ -75,10 +75,12 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 # @return settings is the optimized settings configuration found
 def hill_climb(settings, step_size: float, max_steps: int, num_knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings)) # initial state
-
     # Once a "a good area" is found, start exploiting it aggressively
     for i in range(max_steps):
-        if current_score > 0.5:
+        if current_score > 0.6:
+            step_size = 0.005
+            num_knobs_changed = 1
+        elif current_score > 0.5:
             step_size = 0.01
         elif current_score > 0:
             step_size = 0.1
@@ -150,7 +152,7 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
 
 # MAIN
 # initial values 
-num_rand_settings = 15
+num_rand_settings = 20
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
