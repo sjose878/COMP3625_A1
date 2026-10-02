@@ -76,14 +76,17 @@ def gradient_descent(settings, nudge: float, learn_rate: float, max_steps: int, 
 def hill_climb(settings, step_size: float, max_steps: int, num_knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings)) # initial state
     # Once a "a good area" is found, start exploiting it aggressively
+    # Once a score threshold is reached, override vars to become more exploitive
     for i in range(max_steps):
         if current_score > 0.6:
             step_size = 0.005
             num_knobs_changed = 1
         elif current_score > 0.5:
             step_size = 0.01
+            num_knobs_changed = 2
         elif current_score > 0:
             step_size = 0.1
+            num_knobs_changed = 2
 
         new_settings = settings.copy()
         # Randomly choose only some of the knobs to change
@@ -101,15 +104,15 @@ def hill_climb(settings, step_size: float, max_steps: int, num_knobs_changed: in
         #print(f"HC Score: {current_score}")
     return settings
 
-# Maximizing search function using the simulated anealing method
+# Maximizing search function using the simulated annealing method
 # @arg settings is the initial knob settings
-# @arg temp sets the temperature for the simulated anealing (How exploratory an iteration starts)
+# @arg temp sets the temperature for the simulated annealing (How exploratory an iteration starts)
 # @arg cooling_rate is how fast the temperature cools down. (How fast it switches from exploratory to exploitive)
 # @arg step_size is the distance from the current state to a neighboring state
 # @arg max_steps is the max amount of steps an iteration of new settings will attempt
 # @arg num_knobs_changed is how many random knobs in settings will be tweaked per iteration
 # @return settings is the optimized settings configuration found
-def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int, num_knobs_changed: int):
+def simulated_annealing(settings, temp: float, cooling_rate: float, step_size: float, max_steps: int, num_knobs_changed: int):
     current_score = evaluate_score(translator.translate(settings)) # initial state
     accepted = True
     for i in range(max_steps):
@@ -152,29 +155,29 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
 
 # MAIN
 # initial values 
-num_rand_settings = 20
+num_rand_settings = 10
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
 start_values = np.array(rand_settings)
 
 # GRADIENT DESCENT variables
-nudge = 0.1
-learn_rate = 0.003
-gd_max_steps = 500
-tolerance = 1e-5 / len(rand_settings)
+#nudge = 0.1
+#learn_rate = 0.003
+#gd_max_steps = 500
+#tolerance = 1e-5 / len(rand_settings)
 
 # HILL CLIMBING variables
-hc_max_steps = 5000
+hc_max_steps = 6500
 hc_step_size = 0.2
 hc_num_knobs_changed = 2
 
-# SIMULATED ANEALING variables
-temp = 2 # higher temp -> more exploration
-cooling_rate = 0.995 # how fast exploration slows down
-sim_step_size = 0.2
-sim_max_steps = 1000
-sim_num_knobs_changed = 4
+# SIMULATED ANNEALING variables
+#temp = 2 # higher temp -> more exploration
+#cooling_rate = 0.995 # how fast exploration slows down
+#sim_step_size = 0.2
+#sim_max_steps = 1000
+#sim_num_knobs_changed = 4
 
 best_score = -1
 for setting in start_values:
@@ -183,8 +186,8 @@ for setting in start_values:
     #result = gradient_descent(setting, nudge, learn_rate, gd_max_steps, tolerance)
 # Hill Climbing
     result = hill_climb(setting, hc_step_size, hc_max_steps, hc_num_knobs_changed)
-# Simulated Anealing
-    #result = simulated_anealing(setting, temp, cooling_rate, sim_step_size, sim_max_steps, sim_num_knobs_changed)
+# Simulated Annealing
+    #result = simulated_annealing(setting, temp, cooling_rate, sim_step_size, sim_max_steps, sim_num_knobs_changed)
     
     # Keeps track of the current best settings found
     final_string = translator.translate(result)
@@ -195,6 +198,6 @@ for setting in start_values:
         print(f'Current best solution: {best_result}')
         print(f'Current score: {best_score:.3f}')
 
-print(f'# Final solution: {best_result}\n# Decode rate: {best_score:.3f}')
+print(f'# Final solution: {best_result}\n# Decode rate: {best_score:.2f}')
 # print total number of settings evaluated
 print(f'# settings tried: {translator.n_settings_tried()}')
