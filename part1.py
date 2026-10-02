@@ -181,11 +181,11 @@ print(translated_string)
 settings = np.array(settings)
 
 # generate a scatter plot
-plt.scatter(x=settings[:, 0],
-            y=settings[:, 1],
-            c=decode_rate,
+plt.scatter(x=settings_plot[:, 0],
+            y=settings_plot[:, 1],
+            c=decode_rates,
             vmin=0, vmax=1
-            )
+          )
 
 # add colorbar and gridlines
 cbar = plt.colorbar(label="decode rate")
@@ -198,3 +198,5 @@ plt.title('decode rates for settings tried')
 
 # display
 plt.show()
+
+
