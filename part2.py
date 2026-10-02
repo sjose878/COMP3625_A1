@@ -150,7 +150,7 @@ def simulated_anealing(settings, temp: float, cooling_rate: float, step_size: fl
 
 # MAIN
 # initial values 
-num_rand_settings = 30
+num_rand_settings = 15
 rand_settings = []
 for i in np.arange(num_rand_settings):
     rand_settings.append([rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random(),rng.random()])
@@ -163,9 +163,9 @@ gd_max_steps = 500
 tolerance = 1e-5 / len(rand_settings)
 
 # HILL CLIMBING variables
-hc_max_steps = 2000
+hc_max_steps = 5000
 hc_step_size = 0.2
-hc_num_knobs_changed = 3
+hc_num_knobs_changed = 2
 
 # SIMULATED ANEALING variables
 temp = 2 # higher temp -> more exploration
