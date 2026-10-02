@@ -4,11 +4,9 @@ Write your answers to the following questions in this file, *after* completing e
 
 
 
-
 # 2) Why is the 10-knob problem harder than the 2-knob problem? (It may help you to know that the *mechanics* of both problems were the same: the relationship between settings and performance had the same general characteristics, there were just more settings to tune in the 10-knob problem).
 
-
-
+It goes from being a 2-dimensional problem to a 10-dimensional problem. The number of different knob settings to try exponentially increases. It takes so much more time and even luck to figure out if one setting change made by the algorithm actually gets us closer to the goal. Algorithms need a lot more time and fine-tuning to navigate a 10-dimensional search space.
 
 # 3) If your program was seen as an "agent program", which of the agent types discussed in class would it be?
 
